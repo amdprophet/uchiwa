@@ -192,8 +192,8 @@ controllerModule.controller('client', ['$scope', '$routeParams', 'clientsService
 /**
 * Clients
 */
-controllerModule.controller('clients', ['$scope', '$rootScope', '$routeParams', 'routingService', 'stashesService', 'clientsService', '$filter', 'Page',
-  function ($scope, $rootScope, $routeParams, routingService, stashesService, clientsService, $filter, Page) {
+controllerModule.controller('clients', ['$scope', '$rootScope', '$routeParams', 'routingService', 'stashesService', 'clientsService', '$filter', 'favicoService', 'Page',
+  function ($scope, $rootScope, $routeParams, routingService, stashesService, clientsService, $filter, favicoService, Page) {
     Page.setTitle('Clients');
     $scope.pageHeaderText = 'Clients';
     $scope.predicate = '-status';
@@ -210,6 +210,17 @@ controllerModule.controller('clients', ['$scope', '$rootScope', '$routeParams', 
     $scope.permalink = routingService.permalink;
     $scope.stash = stashesService.stash;
     $scope.deleteClient = clientsService.deleteClient;
+
+    // Update favicon count
+    if ($rootScope.clients !== undefined) {
+      favicoService.badge(_.size($rootScope.clients));
+    }
+    $rootScope.$watch('clients', function() {
+      favicoService.badge(_.size($rootScope.clients));
+    });
+    $scope.$on('$destroy', function() {
+      favicoService.reset();
+    });
 
     // Helpers
     $scope.selectedClients = function(clients) {
@@ -259,8 +270,8 @@ controllerModule.controller('clients', ['$scope', '$rootScope', '$routeParams', 
 /**
 * Events
 */
-controllerModule.controller('events', ['$cookieStore', '$scope', '$rootScope', '$routeParams','routingService', 'settings', 'stashesService', 'clientsService', '$filter', 'Page',
-  function ($cookieStore, $scope, $rootScope, $routeParams, routingService, settings, stashesService, clientsService, $filter, Page) {
+controllerModule.controller('events', ['$cookieStore', '$scope', '$rootScope', '$routeParams','routingService', 'settings', 'stashesService', 'clientsService', '$filter', 'favicoService', 'Page',
+  function ($cookieStore, $scope, $rootScope, $routeParams, routingService, settings, stashesService, clientsService, $filter, favicoService, Page) {
     Page.setTitle('Events');
     $scope.pageHeaderText = 'Events';
     $scope.predicate = '-check.status';
@@ -288,6 +299,17 @@ controllerModule.controller('events', ['$cookieStore', '$scope', '$rootScope', '
     $scope.filters.occurrences = $cookieStore.get('hideOccurrences') || settings.hideOccurrences;
     $scope.$watch('filters.occurrences', function () {
       $cookieStore.put('hideOccurrences', $scope.filters.occurrences);
+    });
+
+    // Update favicon count
+    if ($rootScope.events !== undefined) {
+      favicoService.badge(_.size($rootScope.events));
+    }
+    $rootScope.$watch('events', function() {
+      favicoService.badge(_.size($rootScope.events));
+    });
+    $scope.$on('$destroy', function() {
+      favicoService.reset();
     });
 
     // Helpers
@@ -425,8 +447,8 @@ controllerModule.controller('sidebar', ['$scope', '$location',
 /**
 * Stashes
 */
-controllerModule.controller('stashes', ['$scope', '$routeParams', 'routingService', 'stashesService', 'Page',
-  function ($scope, $routeParams, routingService, stashesService, Page) {
+controllerModule.controller('stashes', ['$scope', '$rootScope', '$routeParams', 'routingService', 'stashesService', 'favicoService', 'Page',
+  function ($scope, $rootScope, $routeParams, routingService, stashesService, favicoService, Page) {
     Page.setTitle('Stashes');
     $scope.pageHeaderText = 'Stashes';
     $scope.predicate = 'client';
@@ -445,9 +467,21 @@ controllerModule.controller('stashes', ['$scope', '$routeParams', 'routingServic
       routingService.updateFilters($routeParams, $scope.filters);
     });
 
+    // Update favicon count
+    if ($rootScope.stashes !== undefined) {
+      favicoService.badge(_.size($rootScope.stashes));
+    }
+    $rootScope.$watch('stashes', function() {
+      if ($rootScope.stashes !== undefined) {
+        favicoService.badge(_.size($rootScope.stashes));
+      }
+    });
+    $scope.$on('$destroy', function() {
+      favicoService.reset();
+    });
+
     // Services
     $scope.permalink = routingService.permalink;
-
   }
 ]);
 

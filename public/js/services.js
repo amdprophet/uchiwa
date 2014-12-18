@@ -323,3 +323,27 @@ serviceModule.service('helpers', function() {
     }
   };
 });
+
+
+/**
+* Favicon service
+*/
+serviceModule.service('favicoService', function() {
+  console.log('favicoService called');
+  var favico = new Favico({
+    animation: 'none'
+  });
+
+  var badge = function(num) {
+    favico.badge(num);
+  };
+
+  var reset = function() {
+    favico.reset();
+  };
+
+  return {
+    badge: badge,
+    reset: reset
+  };
+});
