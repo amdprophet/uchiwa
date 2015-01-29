@@ -38,6 +38,45 @@ func deleteStashHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getAggregateHandler(w http.ResponseWriter, r *http.Request) {
+	u, _ := url.Parse(r.URL.String())
+	c := u.Query().Get("check")
+	d := u.Query().Get("dc")
+	if c == "" || d == "" {
+		http.Error(w, fmt.Sprint("Parameters 'check' and 'dc' are required"), 500)
+	}
+
+	a, err := GetAggregate(c, d)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), 500)
+	} else {
+		encoder := json.NewEncoder(w)
+		if err := encoder.Encode(a); err != nil {
+			http.Error(w, fmt.Sprintf("Cannot encode response data: %v", err), 500)
+		}
+	}
+}
+
+func getAggregateByIssuedHandler(w http.ResponseWriter, r *http.Request) {
+	u, _ := url.Parse(r.URL.String())
+	c := u.Query().Get("check")
+	i := u.Query().Get("issued")
+	d := u.Query().Get("dc")
+	if c == "" || i == "" || d == "" {
+		http.Error(w, fmt.Sprint("Parameters 'check', 'issued' and 'dc' are required"), 500)
+	}
+
+	a, err := GetAggregateByIssued(c, i, d)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), 500)
+	} else {
+		encoder := json.NewEncoder(w)
+		if err := encoder.Encode(a); err != nil {
+			http.Error(w, fmt.Sprintf("Cannot encode response data: %v", err), 500)
+		}
+	}
+}
+
 func getClientHandler(w http.ResponseWriter, r *http.Request) {
 	u, _ := url.Parse(r.URL.String())
 	i := u.Query().Get("id")
@@ -125,6 +164,8 @@ func WebServer(config *Config, publicPath *string) {
 		http.Handle("/get_client", httpauth.SimpleBasicAuth(config.Uchiwa.User, config.Uchiwa.Pass)(http.HandlerFunc(getClientHandler)))
 		http.Handle("/get_config", httpauth.SimpleBasicAuth(config.Uchiwa.User, config.Uchiwa.Pass)(http.HandlerFunc(getConfigHandler)))
 		http.Handle("/get_sensu", httpauth.SimpleBasicAuth(config.Uchiwa.User, config.Uchiwa.Pass)(http.HandlerFunc(getSensuHandler)))
+		http.Handle("/get_aggregate", httpauth.SimpleBasicAuth(config.Uchiwa.User, config.Uchiwa.Pass)(http.HandlerFunc(getAggregateHandler)))
+		http.Handle("/get_aggregate_by_issued", httpauth.SimpleBasicAuth(config.Uchiwa.User, config.Uchiwa.Pass)(http.HandlerFunc(getAggregateByIssuedHandler)))
 		http.Handle("/post_event", httpauth.SimpleBasicAuth(config.Uchiwa.User, config.Uchiwa.Pass)(http.HandlerFunc(postEventHandler)))
 		http.Handle("/post_stash", httpauth.SimpleBasicAuth(config.Uchiwa.User, config.Uchiwa.Pass)(http.HandlerFunc(postStashHandler)))
 		http.Handle("/", httpauth.SimpleBasicAuth(config.Uchiwa.User, config.Uchiwa.Pass)(http.FileServer(http.Dir(*publicPath))))
@@ -134,6 +175,8 @@ func WebServer(config *Config, publicPath *string) {
 		http.Handle("/get_client", http.HandlerFunc(getClientHandler))
 		http.Handle("/get_config", http.HandlerFunc(getConfigHandler))
 		http.Handle("/get_sensu", http.HandlerFunc(getSensuHandler))
+		http.Handle("/get_aggregate", http.HandlerFunc(getAggregateHandler))
+		http.Handle("/get_aggregate_by_issued", http.HandlerFunc(getAggregateByIssuedHandler))
 		http.Handle("/post_event", http.HandlerFunc(postEventHandler))
 		http.Handle("/post_stash", http.HandlerFunc(postStashHandler))
 		http.Handle("/", http.FileServer(http.Dir(*publicPath)))
