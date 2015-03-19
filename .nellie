@@ -1,11 +1,12 @@
 {
-  commands: [
+  "commands": [
     "apt-get update",
     "apt-get install -y wget unzip",
     "wget -O git.zip https://github.com/git/git/archive/master.zip",
     "unzip git.zip",
     "cd git-master && make prefix=/usr/local all && make prefix=/usr/local install",
     "echo $PWD",
+    "git --version",
     "echo 'DONE HERE!!'"
   ]
 }
